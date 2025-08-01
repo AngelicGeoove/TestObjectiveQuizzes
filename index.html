@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Central</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .quiz-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        .quiz-card {
+            display: block;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            color: #34495e;
+            transition: all 0.3s ease;
+        }
+        .quiz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+            border-color: #3498db;
+        }
+        .quiz-card h2 {
+            margin-top: 0;
+            font-size: 1.4em;
+            color: #2980b9;
+        }
+        .quiz-card p {
+            font-size: 1em;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Select a Quiz</h1>
+        <div class="quiz-selection">
+            <!-- Card for the first quiz set -->
+            <a href="quiz.html?set=cse" class="quiz-card">
+                <h2>CSE Course Material</h2>
+                <p>210 Questions on UNIX, Perl, and CGI Programming.</p>
+            </a>
+
+            <!-- Card for the second quiz set -->
+            <a href="quiz.html?set=inf308" class="quiz-card">
+                <h2>INF 308: Network Computing II</h2>
+                <p>96 Questions on Networking, Business Continuity, and Backups.</p>
+            </a>
+            
+            <!-- TO ADD A NEW QUIZ, COPY A CARD AND MODIFY IT -->
+            <!--
+            <a href="quiz.html?set=new_quiz_id" class="quiz-card">
+                <h2>New Quiz Title</h2>
+                <p>XX Questions on New Topic.</p>
+            </a>
+            -->
+
+        </div>
+    </div>
+</body>
+</html>

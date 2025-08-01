@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dynamic Quiz</title>
+    <!-- The title will be updated by JS -->
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background-color: #f4f7f9;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+      }
+      .container {
+        width: 100%;
+        max-width: 800px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+      }
+      h1,
+      h2 {
+        text-align: center;
+        color: #2c3e50;
+      }
+      .screen {
+        display: none;
+      }
+      #start-screen {
+        display: block;
+        text-align: center;
+      }
+      #start-form {
+        margin-top: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+      #start-form label {
+        font-size: 1.2em;
+      }
+      #num-questions-input {
+        padding: 10px;
+        font-size: 1.1em;
+        width: 80px;
+        text-align: center;
+        border: 2px solid #bdc3c7;
+        border-radius: 5px;
+      }
+      #error-message {
+        color: #e74c3c;
+        min-height: 20px;
+        font-weight: bold;
+      }
+      .primary-btn {
+        padding: 12px 25px;
+        font-size: 1.1em;
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .primary-btn:hover {
+        background-color: #2ecc71;
+      }
+      #question-header {
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #7f8c8d;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      #question-text {
+        font-size: 1.3em;
+        margin-bottom: 25px;
+        line-height: 1.5;
+      }
+      #options-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .option-btn {
+        width: 100%;
+        padding: 15px;
+        font-size: 1em;
+        background-color: #ecf0f1;
+        border: 2px solid #bdc3c7;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: left;
+        transition: background-color 0.3s, border-color 0.3s;
+      }
+      .option-btn:not(:disabled):hover {
+        background-color: #dfe6e9;
+        border-color: #95a5a6;
+      }
+      .option-btn.correct {
+        background-color: #2ecc71;
+        color: white;
+        border-color: #27ae60;
+      }
+      .option-btn.incorrect {
+        background-color: #e74c3c;
+        color: white;
+        border-color: #c0392b;
+      }
+      #quiz-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+      }
+      .nav-btn {
+        padding: 10px 20px;
+        font-size: 1em;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .nav-btn:disabled {
+        background-color: #bdc3c7;
+        cursor: not-allowed;
+      }
+      #finish-early-btn {
+        background-color: #e67e22;
+      }
+      #back-to-home-btn {
+        background-color: #9b59b6;
+      }
+      .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      .results-table th,
+      .results-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      .results-table th {
+        background-color: #f2f2f2;
+      }
+      .result-row-correct {
+        background-color: #eafaf1;
+      }
+      .result-row-incorrect {
+        background-color: #fbeaea;
+      }
+      .result-row-unanswered {
+        background-color: #fdf2e2;
+      }
+      .result-icon {
+        font-size: 1.2em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Screen 1: Start Screen -->
+      <div id="start-screen" class="screen">
+        <h1 id="quiz-title-start">Quiz Title</h1>
+        <p>Select how many questions you would like to be quizzed on.</p>
+        <div id="start-form">
+          <label for="num-questions-input">Number of Questions:</label>
+          <input type="number" id="num-questions-input" min="1" value="20" />
+          <p id="error-message"></p>
+          <button id="start-quiz-btn" class="primary-btn">Start Quiz</button>
+        </div>
+        <button
+          id="back-to-home-btn"
+          class="nav-btn"
+          style="margin-top: 20px"
+          onclick="window.location.href='index.html'"
+        >
+          Back to Quiz List
+        </button>
+      </div>
+
+      <!-- Screen 2: Quiz Container -->
+      <div id="quiz-container" class="screen">
+        <div id="question-header"></div>
+        <p id="question-text"></p>
+        <div id="options-container"></div>
+        <div id="quiz-actions">
+          <button id="prev-btn" class="nav-btn">Previous</button>
+          <button id="finish-early-btn" class="nav-btn">Show My Result</button>
+          <button id="next-btn" class="nav-btn">Next</button>
+        </div>
+      </div>
+
+      <!-- Screen 3: Results Container -->
+      <div id="results-container" class="screen">
+        <h2 id="quiz-title-results">Quiz Results</h2>
+        <h2 id="score"></h2>
+        <div
+          style="
+            text-align: center;
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+          "
+        >
+          <button id="restart-btn" class="primary-btn">Restart Quiz</button>
+          <button
+            id="retry-incorrect-btn"
+            class="nav-btn"
+            style="background-color: #f39c12"
+          ></button>
+          <button
+            class="nav-btn"
+            style="background-color: #9b59b6"
+            onclick="window.location.href='index.html'"
+          >
+            Back to Quiz List
+          </button>
+        </div>
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Question</th>
+              <th>Your Answer</th>
+              <th>Correct Answer</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody id="results-details"></tbody>
+        </table>
+      </div>
+    </div>
+    <script src="js/quiz_logic.js"></script>
+  </body>
+</html>
