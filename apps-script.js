@@ -13,9 +13,12 @@ function doGet(e) {
     // Log incoming request for debugging
     console.log('doGet called with parameters:', e.parameter);
     console.log('Using sheet:', sheet.getName());
+    console.log('Parameter keys:', Object.keys(e.parameter || {}));
+    console.log('Action parameter:', e.parameter?.action);
+    console.log('Has submit action?', e.parameter?.action === 'submit');
     
     // Check if this is a score submission
-    if (e.parameter && e.parameter.action === 'submit') {
+    if (e.parameter && (e.parameter.action === 'submit' || e.parameter.indexNumber)) {
       console.log('Processing score submission...');
       
       // Handle score submission via GET

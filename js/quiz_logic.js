@@ -176,7 +176,7 @@ function showResults() {
 // --- Google Sheets Configuration ---
 const SHEETS_CONFIG = {
     // Use config.js if available, otherwise use the global URL for GitHub Pages
-    apiUrl: window.SHEETS_CONFIG ? window.SHEETS_CONFIG.apiUrl : 'https://script.google.com/macros/s/AKfycbxiodqsjb-m6gzj-9EZUlqc11hP7TKCgN4uHkTwaZuY8XvdQsXjJOfA8wD9x-CXvjA5Ww/exec'
+    apiUrl: window.SHEETS_CONFIG ? window.SHEETS_CONFIG.apiUrl : 'https://script.google.com/macros/s/AKfycbxDyTTWJSffM5MheutJ3iAoTH6k_p-D3CRvZmSviOXP-Hnre9bR5tzT_a5nGvI1_avnuQ/exec'
 };
 
 // --- Leaderboard Functions ---
