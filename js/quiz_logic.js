@@ -175,7 +175,8 @@ function showResults() {
 
 // --- Google Sheets Configuration ---
 const SHEETS_CONFIG = {
-    apiUrl: window.SHEETS_CONFIG ? window.SHEETS_CONFIG.apiUrl : null
+    // Use config.js if available, otherwise use the global URL for GitHub Pages
+    apiUrl: window.SHEETS_CONFIG ? window.SHEETS_CONFIG.apiUrl : 'https://script.google.com/macros/s/AKfycbxiodqsjb-m6gzj-9EZUlqc11hP7TKCgN4uHkTwaZuY8XvdQsXjJOfA8wD9x-CXvjA5Ww/exec'
 };
 
 // --- Leaderboard Functions ---

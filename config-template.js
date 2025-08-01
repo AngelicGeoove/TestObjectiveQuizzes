@@ -4,5 +4,5 @@
 window.SHEETS_CONFIG = {
     // Replace with your Google Apps Script Web App URL
     // It should look like: https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
-    apiUrl: 'YOUR_APPS_SCRIPT_URL_HERE'
+    apiUrl: 'https://script.google.com/macros/s/AKfycbxiodqsjb-m6gzj-9EZUlqc11hP7TKCgN4uHkTwaZuY8XvdQsXjJOfA8wD9x-CXvjA5Ww/exec'
 };
