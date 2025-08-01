@@ -343,7 +343,7 @@ async function fetchFromGoogleSheets() {
         timestamp: item.timestamp
     }));
 }
-}
+
 
 function displayLeaderboard(leaderboardData, source) {
     if (leaderboardData.length === 0) {
