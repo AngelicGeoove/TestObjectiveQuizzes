@@ -198,6 +198,21 @@ async function saveToLeaderboard(indexNumber) {
     const currentQuizData = window.quizSets[quizSetId];
     const percentage = Math.round((correctAnswers / quizQuestions.length) * 100);
     
+    const currentDate = new Date();
+    
+    // Format date as d-m-y (e.g., "1-8-2025")
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth() + 1; // months are 0-indexed
+    const year = currentDate.getFullYear();
+    const formattedDate = `${day}-${month}-${year}`;
+    
+    // Format time as 12-hour clock (e.g., "3:45 PM")
+    const formattedTime = currentDate.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+    
     const leaderboardEntry = {
         indexNumber: indexNumber,
         category: currentQuizData.title,
@@ -206,8 +221,8 @@ async function saveToLeaderboard(indexNumber) {
         correctAnswers: correctAnswers,
         totalQuestions: quizQuestions.length,
         percentage: percentage,
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString(),
+        date: formattedDate,
+        time: formattedTime,
         timestamp: new Date().toISOString()
     };
     
