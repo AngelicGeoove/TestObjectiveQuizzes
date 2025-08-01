@@ -10,7 +10,7 @@ window.quizSets.inf308 = {
         {
             question: "Q1. Line coding is a method used to represent digital data on a ________ medium.",
             options: ["Optical", "Electrical", "Physical", "Mechanical"],
-            correct: "B"
+            correct: "C"
         },
         {
             question: "Q2. Which line coding scheme ensures there are no long sequences of zeros?",
@@ -25,7 +25,7 @@ window.quizSets.inf308 = {
         {
             question: "Q4. In Bipolar NRZ, the signal levels alternate between positive and negative for different bits.",
             options: ["True", "False"],
-            correct: "A"
+            correct: "B"
         },
         {
             question: "Q5. Manchester encoding is commonly used in which network technology?",
@@ -35,12 +35,12 @@ window.quizSets.inf308 = {
         {
             question: "Q6. In ____ coding, a binary '1' is represented by a transition, and a binary '0' by no transition.",
             options: ["NRZ", "Manchester", "RZ", "Biphase"],
-            correct: "A"
+            correct: "D"
         },
         {
             question: "Q7. The main disadvantage of NRZ encoding is ____.",
             options: ["DC component", "High bandwidth requirement", "Signal synchronization", "Complexity"],
-            correct: "A"
+            correct: "C"
         },
         {
             question: "Q8. Return-to-Zero (RZ) coding requires less bandwidth than NRZ.",
@@ -50,7 +50,7 @@ window.quizSets.inf308 = {
         {
             question: "Q9. Which encoding method uses three voltage levels: positive, zero, and negative?",
             options: ["Polar NRZ", "Bipolar RZ", "AMI", "HDB3"],
-            correct: "C"
+            correct: "B"
         },
         {
             question: "Q10. In ____ encoding, each bit has a transition in the middle of the bit period.",
