@@ -177,7 +177,7 @@ function showResults() {
 const GITHUB_CONFIG = {
     owner: 'AngelicGeoove',
     repo: 'TestObjectiveQuizzes',
-    token: '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'
+    token: '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'
 };
 
 // --- Leaderboard Functions ---
