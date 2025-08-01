@@ -17,7 +17,7 @@ function doGet(e) {
     const leaderboard = rows.map(row => {
       const entry = {};
       headers.forEach((header, index) => {
-        entry[header.toLowerCase().replace(' ', '')] = row[index];
+        entry[header.toLowerCase().replace(/\s+/g, '')] = row[index];
       });
       return entry;
     });
@@ -30,21 +30,26 @@ function doGet(e) {
       return b.totalquestions - a.totalquestions;
     });
     
-    return ContentService
+    const response = ContentService
       .createTextOutput(JSON.stringify({
         success: true,
         data: leaderboard,
         count: leaderboard.length
       }))
       .setMimeType(ContentService.MimeType.JSON);
+    
+    // Add CORS headers
+    return response;
       
   } catch (error) {
-    return ContentService
+    const response = ContentService
       .createTextOutput(JSON.stringify({
         success: false,
         error: error.toString()
       }))
       .setMimeType(ContentService.MimeType.JSON);
+    
+    return response;
   }
 }
 
@@ -52,12 +57,33 @@ function doPost(e) {
   // Handle POST requests - submit new scores
   try {
     const sheet = SpreadsheetApp.getActiveSheet();
-    const data = JSON.parse(e.postData.contents);
+    
+    // Parse the POST data - handle both JSON and form data
+    let data;
+    if (e.postData && e.postData.contents) {
+      try {
+        // Try JSON first
+        data = JSON.parse(e.postData.contents);
+      } catch (jsonError) {
+        // If JSON fails, try form data
+        data = e.parameter;
+      }
+    } else if (e.parameter) {
+      data = e.parameter;
+    } else {
+      throw new Error('No data received');
+    }
+    
+    // Convert string numbers to actual numbers
+    if (typeof data.correctAnswers === 'string') data.correctAnswers = parseInt(data.correctAnswers);
+    if (typeof data.totalQuestions === 'string') data.totalQuestions = parseInt(data.totalQuestions);
+    if (typeof data.percentage === 'string') data.percentage = parseFloat(data.percentage);
+    if (typeof data.questionsAnswered === 'string') data.questionsAnswered = parseInt(data.questionsAnswered);
     
     // Validate required fields
     const required = ['indexNumber', 'category', 'correctAnswers', 'totalQuestions', 'percentage', 'questionsAnswered', 'date', 'time'];
     for (let field of required) {
-      if (data[field] === undefined || data[field] === null) {
+      if (data[field] === undefined || data[field] === null || data[field] === '') {
         throw new Error(`Missing required field: ${field}`);
       }
     }
@@ -78,21 +104,26 @@ function doPost(e) {
       data.time
     ]);
     
-    return ContentService
+    const response = ContentService
       .createTextOutput(JSON.stringify({
         success: true,
         message: 'Score submitted successfully',
-        timestamp: timestamp
+        timestamp: timestamp,
+        data: data
       }))
       .setMimeType(ContentService.MimeType.JSON);
+    
+    return response;
       
   } catch (error) {
-    return ContentService
+    const response = ContentService
       .createTextOutput(JSON.stringify({
         success: false,
         error: error.toString()
       }))
       .setMimeType(ContentService.MimeType.JSON);
+    
+    return response;
   }
 }
 

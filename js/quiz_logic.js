@@ -246,12 +246,18 @@ async function submitToGoogleSheets(entry) {
         throw new Error('Google Sheets API URL not configured. Scores will be saved locally only.');
     }
     
+    // Use URLSearchParams for CORS-friendly POST request
+    const formData = new URLSearchParams();
+    Object.keys(entry).forEach(key => {
+        formData.append(key, entry[key]);
+    });
+    
     const response = await fetch(SHEETS_CONFIG.apiUrl, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify(entry)
+        body: formData
     });
 
     if (!response.ok) {
