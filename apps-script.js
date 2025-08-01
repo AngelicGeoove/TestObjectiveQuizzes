@@ -58,14 +58,17 @@ function doPost(e) {
   try {
     const sheet = SpreadsheetApp.getActiveSheet();
     
-    // Parse the POST data - handle both JSON and form data
+    // Log incoming data for debugging
+    console.log('Received POST data:', e);
+    
+    // Parse the POST data
     let data;
     if (e.postData && e.postData.contents) {
       try {
-        // Try JSON first
         data = JSON.parse(e.postData.contents);
+        console.log('Parsed JSON data:', data);
       } catch (jsonError) {
-        // If JSON fails, try form data
+        console.log('JSON parse failed, trying form data:', jsonError);
         data = e.parameter;
       }
     } else if (e.parameter) {
@@ -74,16 +77,24 @@ function doPost(e) {
       throw new Error('No data received');
     }
     
-    // Convert string numbers to actual numbers
-    if (typeof data.correctAnswers === 'string') data.correctAnswers = parseInt(data.correctAnswers);
-    if (typeof data.totalQuestions === 'string') data.totalQuestions = parseInt(data.totalQuestions);
-    if (typeof data.percentage === 'string') data.percentage = parseFloat(data.percentage);
-    if (typeof data.questionsAnswered === 'string') data.questionsAnswered = parseInt(data.questionsAnswered);
+    // Ensure data is properly typed
+    const processedData = {
+      indexNumber: String(data.indexNumber || ''),
+      category: String(data.category || ''),
+      correctAnswers: Number(data.correctAnswers) || 0,
+      totalQuestions: Number(data.totalQuestions) || 0,
+      percentage: Number(data.percentage) || 0,
+      questionsAnswered: Number(data.questionsAnswered) || 0,
+      date: String(data.date || ''),
+      time: String(data.time || '')
+    };
+    
+    console.log('Processed data:', processedData);
     
     // Validate required fields
-    const required = ['indexNumber', 'category', 'correctAnswers', 'totalQuestions', 'percentage', 'questionsAnswered', 'date', 'time'];
+    const required = ['indexNumber', 'category', 'date', 'time'];
     for (let field of required) {
-      if (data[field] === undefined || data[field] === null || data[field] === '') {
+      if (!processedData[field] || processedData[field] === '') {
         throw new Error(`Missing required field: ${field}`);
       }
     }
@@ -94,36 +105,40 @@ function doPost(e) {
     // Append new row
     sheet.appendRow([
       timestamp,
-      data.indexNumber,
-      data.category,
-      data.correctAnswers,
-      data.totalQuestions,
-      data.percentage,
-      data.questionsAnswered,
-      data.date,
-      data.time
+      processedData.indexNumber,
+      processedData.category,
+      processedData.correctAnswers,
+      processedData.totalQuestions,
+      processedData.percentage,
+      processedData.questionsAnswered,
+      processedData.date,
+      processedData.time
     ]);
     
-    const response = ContentService
-      .createTextOutput(JSON.stringify({
-        success: true,
-        message: 'Score submitted successfully',
-        timestamp: timestamp,
-        data: data
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
+    const successResponse = {
+      success: true,
+      message: 'Score submitted successfully',
+      timestamp: timestamp.toISOString(),
+      data: processedData
+    };
     
-    return response;
+    console.log('Returning success response:', successResponse);
+    
+    return ContentService
+      .createTextOutput(JSON.stringify(successResponse))
+      .setMimeType(ContentService.MimeType.JSON);
       
   } catch (error) {
-    const response = ContentService
-      .createTextOutput(JSON.stringify({
-        success: false,
-        error: error.toString()
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
+    console.log('Error in doPost:', error);
     
-    return response;
+    const errorResponse = {
+      success: false,
+      error: error.toString()
+    };
+    
+    return ContentService
+      .createTextOutput(JSON.stringify(errorResponse))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 

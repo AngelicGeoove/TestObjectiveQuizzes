@@ -246,21 +246,27 @@ async function submitToGoogleSheets(entry) {
         throw new Error('Google Sheets API URL not configured. Scores will be saved locally only.');
     }
     
-    const formData = new URLSearchParams();
-    Object.keys(entry).forEach(key => {
-        formData.append(key, entry[key]);
-    });
-    
     const response = await fetch(SHEETS_CONFIG.apiUrl, {
         method: 'POST',
-        body: formData
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(entry)
     });
 
     if (!response.ok) {
         throw new Error(`Google Sheets API error: ${response.status}`);
     }
 
-    const result = await response.json();
+    const responseText = await response.text();
+    console.log('Raw response:', responseText);
+    
+    let result;
+    try {
+        result = JSON.parse(responseText);
+    } catch (parseError) {
+        throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
+    }
     
     if (!result.success) {
         throw new Error(`Google Sheets error: ${result.error}`);
