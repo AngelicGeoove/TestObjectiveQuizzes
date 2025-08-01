@@ -302,7 +302,7 @@
         const GITHUB_CONFIG = {
             owner: 'AngelicGeoove',
             repo: 'TestObjectiveQuizzes',
-            token: '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'
+            token: window.GITHUB_CONFIG ? window.GITHUB_CONFIG.token : null
         };
 
         async function loadLeaderboard() {
@@ -350,6 +350,11 @@
         }
 
         async function fetchFromGitHubIssues() {
+            // Check if GitHub token is available
+            if (!GITHUB_CONFIG.token) {
+                throw new Error('GitHub token not configured');
+            }
+            
             const response = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues?labels=leaderboard&state=open&per_page=100`, {
                 headers: {
                     'Accept': 'application/vnd.github.v3+json',
@@ -486,5 +491,8 @@
         // Load leaderboard on page load
         document.addEventListener('DOMContentLoaded', loadLeaderboard);
     </script>
+    
+    <!-- GitHub configuration (optional, for global leaderboard) -->
+    <script src="config.js"></script>
 </body>
 </html>

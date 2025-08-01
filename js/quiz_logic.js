@@ -177,7 +177,7 @@ function showResults() {
 const GITHUB_CONFIG = {
     owner: 'AngelicGeoove',
     repo: 'TestObjectiveQuizzes',
-    token: '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'
+    token: window.GITHUB_CONFIG ? window.GITHUB_CONFIG.token : null
 };
 
 // --- Leaderboard Functions ---
@@ -242,6 +242,11 @@ async function saveToLeaderboard(indexNumber) {
 }
 
 async function submitToGitHubIssues(entry) {
+    // Check if GitHub token is available
+    if (!GITHUB_CONFIG.token) {
+        throw new Error('GitHub token not configured. Scores will be saved locally only.');
+    }
+    
     const issueTitle = `🏆 ${entry.indexNumber} - ${entry.percentage}% (${entry.correctAnswers}/${entry.totalQuestions}) - ${entry.category}`;
     
     const issueBody = `## Quiz Leaderboard Entry
