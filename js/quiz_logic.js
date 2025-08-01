@@ -218,7 +218,7 @@ async function saveToLeaderboard(indexNumber) {
     submitBtn.disabled = true;
     
     try {
-        // Try to submit to GitHub Issues first
+        // Try to submit to Google Sheets first
         await submitToGoogleSheets(leaderboardEntry);
         
         // Also save to localStorage as backup
@@ -227,7 +227,7 @@ async function saveToLeaderboard(indexNumber) {
         alert(`🎉 Successfully submitted to global leaderboard!\n\nScore: ${correctAnswers}/${quizQuestions.length} (${percentage}%)\nIndex: ${indexNumber}\n\nYour score is now visible to everyone!`);
         
     } catch (error) {
-        console.error('GitHub submission failed:', error);
+        console.error('Google Sheets submission failed:', error);
         
         // Fallback to localStorage only
         saveToLocalStorage(leaderboardEntry);
@@ -240,22 +240,20 @@ async function saveToLeaderboard(indexNumber) {
     }
 }
 
-// Corrected code
 async function submitToGoogleSheets(entry) {
-    if (!SHEETS_CONFIG.apiUrl || SHEETS_CONFIG.apiUrl === 'https://script.google.com/macros/s/AKfycbxiodqsjb-m6gzj-9EZUlqc11hP7TKCgN4uHkTwaZuY8XvdQsXjJOfA8wD9x-CXvjA5Ww/exec') {
+    // Check if Google Sheets API URL is configured
+    if (!SHEETS_CONFIG.apiUrl || SHEETS_CONFIG.apiUrl === 'YOUR_APPS_SCRIPT_URL_HERE') {
         throw new Error('Google Sheets API URL not configured. Scores will be saved locally only.');
     }
-
+    
     const formData = new URLSearchParams();
-    for (const key in entry) {
+    Object.keys(entry).forEach(key => {
         formData.append(key, entry[key]);
-    }
-
-    // Notice the 'headers' object is completely removed
+    });
+    
     const response = await fetch(SHEETS_CONFIG.apiUrl, {
         method: 'POST',
-        body: formData,
-        // mode: 'no-cors' IS NOT NEEDED and will break things, leave it out.
+        body: formData
     });
 
     if (!response.ok) {
@@ -263,8 +261,8 @@ async function submitToGoogleSheets(entry) {
     }
 
     const result = await response.json();
-
-    if (result.success === false) { // Check for explicit failure from your script
+    
+    if (!result.success) {
         throw new Error(`Google Sheets error: ${result.error}`);
     }
 
@@ -291,23 +289,20 @@ function saveToLocalStorage(leaderboardEntry) {
 }
 
 async function viewLeaderboard() {
-    // Show loading message
-    const loadingMsg = alert('📊 Loading global leaderboard...');
-    
     try {
-        // Try to fetch from GitHub Issues first
-        const githubData = await fetchFromGitHubIssues();
+        // Try to fetch from Google Sheets first
+        const sheetsData = await fetchFromGoogleSheets();
         
-        if (githubData.length > 0) {
-            displayLeaderboard(githubData, 'global');
+        if (sheetsData.length > 0) {
+            displayLeaderboard(sheetsData, 'global');
         } else {
-            // Fallback to localStorage if no GitHub data
+            // Fallback to localStorage if no Google Sheets data
             const localData = JSON.parse(localStorage.getItem('quizLeaderboard') || '[]');
             displayLeaderboard(localData, 'local');
         }
         
     } catch (error) {
-        console.error('GitHub fetch failed:', error);
+        console.error('Google Sheets fetch failed:', error);
         
         // Fallback to localStorage
         const localData = JSON.parse(localStorage.getItem('quizLeaderboard') || '[]');
@@ -315,43 +310,39 @@ async function viewLeaderboard() {
     }
 }
 
-async function fetchFromGitHubIssues() {
-    const response = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues?labels=leaderboard&state=open&per_page=100`, {
-        headers: {
-            'Accept': 'application/vnd.github.v3+json',
-            'Authorization': `token ${GITHUB_CONFIG.token}`
-        }
+async function fetchFromGoogleSheets() {
+    // Check if Google Sheets API URL is configured
+    if (!SHEETS_CONFIG.apiUrl || SHEETS_CONFIG.apiUrl === 'YOUR_APPS_SCRIPT_URL_HERE') {
+        throw new Error('Google Sheets API URL not configured');
+    }
+    
+    const response = await fetch(SHEETS_CONFIG.apiUrl, {
+        method: 'GET'
     });
 
     if (!response.ok) {
-        throw new Error(`GitHub API error: ${response.status}`);
+        throw new Error(`Google Sheets API error: ${response.status}`);
     }
 
-    const issues = await response.json();
-    const leaderboardData = [];
-
-    for (const issue of issues) {
-        try {
-            // Extract JSON data from issue body
-            const jsonMatch = issue.body.match(/```json\n(.*?)\n```/s);
-            if (jsonMatch) {
-                const data = JSON.parse(jsonMatch[1]);
-                leaderboardData.push(data);
-            }
-        } catch (error) {
-            console.warn('Failed to parse issue data:', error);
-        }
+    const result = await response.json();
+    
+    if (!result.success) {
+        throw new Error(`Google Sheets error: ${result.error}`);
     }
 
-    // Sort by percentage (highest first), then by total questions (most first)
-    leaderboardData.sort((a, b) => {
-        if (b.percentage !== a.percentage) {
-            return b.percentage - a.percentage;
-        }
-        return b.totalQuestions - a.totalQuestions;
-    });
-
-    return leaderboardData;
+    // Convert the Google Sheets data format to our leaderboard format
+    return result.data.map(item => ({
+        indexNumber: item.indexnumber || item['indexnumber'],
+        category: item.quizcategory || item['quizcategory'] || item.category,
+        correctAnswers: parseInt(item.score) || 0,
+        totalQuestions: parseInt(item.totalquestions || item['totalquestions']) || 0,
+        percentage: parseFloat(item.percentage) || 0,
+        questionsAnswered: parseInt(item.questionsanswered || item['questionsanswered']) || 0,
+        date: item.date,
+        time: item.time,
+        timestamp: item.timestamp
+    }));
+}
 }
 
 function displayLeaderboard(leaderboardData, source) {
@@ -360,7 +351,7 @@ function displayLeaderboard(leaderboardData, source) {
         return;
     }
     
-    const sourceText = source === 'global' ? '🌍 Global Leaderboard (GitHub)' : '💾 Local Leaderboard';
+    const sourceText = source === 'global' ? '🌍 Global Leaderboard (Google Sheets)' : '💾 Local Leaderboard';
     
     // Create leaderboard window content
     let leaderboardHTML = `
@@ -543,7 +534,7 @@ function displayLeaderboard(leaderboardData, source) {
                     <button class="btn btn-primary" onclick="window.close()">❌ Close</button>
                 </div>
                 <div style="text-align: center; margin-top: 20px; color: #666; font-size: 0.9em;">
-                    <p>${source === 'global' ? '🌍 This leaderboard is synced globally via GitHub Issues' : '💾 This is your local leaderboard data'}</p>
+                    <p>${source === 'global' ? '🌍 This leaderboard is synced globally via Google Sheets' : '💾 This is your local leaderboard data'}</p>
                     <p>Total entries: ${leaderboardData.length}</p>
                 </div>
             </div>
