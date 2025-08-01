@@ -246,9 +246,14 @@ async function submitToGoogleSheets(entry) {
         throw new Error('Google Sheets API URL not configured. Scores will be saved locally only.');
     }
     
+    // Log what we're sending
+    console.log('Submitting to Google Sheets with entry:', entry);
+    
     // Use GET request with URL parameters to avoid CORS preflight
     const params = new URLSearchParams(entry);
     const urlWithParams = `${SHEETS_CONFIG.apiUrl}?action=submit&${params.toString()}`;
+    
+    console.log('Full URL:', urlWithParams);
     
     const response = await fetch(urlWithParams, {
         method: 'GET'
