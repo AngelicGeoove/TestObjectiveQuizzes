@@ -6,164 +6,515 @@
     <title>Dynamic Quiz</title>
     <!-- The title will be updated by JS -->
     <style>
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
-        background-color: #f4f7f9;
-        color: #333;
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+      
+      * {
         margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #333;
         padding: 20px;
         display: flex;
         justify-content: center;
+        align-items: flex-start;
       }
+      
       .container {
         width: 100%;
-        max-width: 800px;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        padding: 30px;
+        max-width: 900px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        padding: 40px;
+        animation: fadeInUp 0.8s ease-out;
       }
-      h1,
-      h2 {
+      
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      h1, h2 {
         text-align: center;
-        color: #2c3e50;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
       }
+      
+      h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+      
+      h2 {
+        font-size: 2em;
+        margin-bottom: 20px;
+      }
+      
       .screen {
         display: none;
       }
+      
       #start-screen {
         display: block;
         text-align: center;
       }
+      
       #start-form {
-        margin-top: 30px;
+        margin-top: 40px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 15px;
+        gap: 20px;
       }
+      
       #start-form label {
-        font-size: 1.2em;
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #4a5568;
       }
+      
       #num-questions-input {
-        padding: 10px;
-        font-size: 1.1em;
-        width: 80px;
+        padding: 15px;
+        font-size: 1.2em;
+        width: 100px;
         text-align: center;
-        border: 2px solid #bdc3c7;
-        border-radius: 5px;
+        border: 3px solid #e2e8f0;
+        border-radius: 15px;
+        background: white;
+        transition: all 0.3s ease;
+        font-weight: 600;
       }
+      
+      #num-questions-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: scale(1.05);
+      }
+      
       #error-message {
-        color: #e74c3c;
-        min-height: 20px;
-        font-weight: bold;
-      }
-      .primary-btn {
-        padding: 12px 25px;
+        color: #e53e3e;
+        min-height: 25px;
+        font-weight: 600;
         font-size: 1.1em;
-        background-color: #27ae60;
+      }
+      
+      .primary-btn {
+        padding: 15px 35px;
+        font-size: 1.2em;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         color: white;
         border: none;
-        border-radius: 5px;
+        border-radius: 50px;
         cursor: pointer;
-        transition: background-color 0.3s;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        font-weight: 600;
+        box-shadow: 0 10px 25px rgba(79, 172, 254, 0.3);
+        position: relative;
+        overflow: hidden;
       }
+      
+      .primary-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+      }
+      
+      .primary-btn:hover::before {
+        left: 100%;
+      }
+      
       .primary-btn:hover {
-        background-color: #2ecc71;
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(79, 172, 254, 0.4);
       }
+      
       #question-header {
-        font-size: 1.1em;
-        font-weight: bold;
-        color: #7f8c8d;
-        margin-bottom: 20px;
-        text-align: center;
-      }
-      #question-text {
-        font-size: 1.3em;
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #667eea;
         margin-bottom: 25px;
-        line-height: 1.5;
+        text-align: center;
+        padding: 15px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border-radius: 15px;
+        border: 2px solid rgba(102, 126, 234, 0.2);
       }
+      
+      #question-text {
+        font-size: 1.4em;
+        margin-bottom: 30px;
+        line-height: 1.6;
+        color: #2d3748;
+        font-weight: 500;
+        padding: 25px;
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 15px;
+        border-left: 5px solid #667eea;
+      }
+      
       #options-container {
         display: flex;
         flex-direction: column;
         gap: 15px;
       }
+      
       .option-btn {
         width: 100%;
-        padding: 15px;
-        font-size: 1em;
-        background-color: #ecf0f1;
-        border: 2px solid #bdc3c7;
-        border-radius: 5px;
+        padding: 20px;
+        font-size: 1.1em;
+        background: white;
+        border: 3px solid #e2e8f0;
+        border-radius: 15px;
         cursor: pointer;
         text-align: left;
-        transition: background-color 0.3s, border-color 0.3s;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        font-weight: 500;
+        position: relative;
+        overflow: hidden;
       }
+      
+      .option-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+        transition: left 0.5s;
+      }
+      
+      .option-btn:hover::before {
+        left: 100%;
+      }
+      
       .option-btn:not(:disabled):hover {
-        background-color: #dfe6e9;
-        border-color: #95a5a6;
+        background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+        border-color: #4facfe;
+        transform: translateX(10px);
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.2);
       }
+      
       .option-btn.correct {
-        background-color: #2ecc71;
+        background: linear-gradient(135deg, #48bb78, #38a169);
         color: white;
-        border-color: #27ae60;
+        border-color: #2f855a;
+        transform: scale(1.02);
+        box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
       }
+      
       .option-btn.incorrect {
-        background-color: #e74c3c;
+        background: linear-gradient(135deg, #f56565, #e53e3e);
         color: white;
-        border-color: #c0392b;
+        border-color: #c53030;
+        transform: scale(0.98);
+        box-shadow: 0 5px 15px rgba(245, 101, 101, 0.3);
       }
+      
       #quiz-actions {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 30px;
+        margin-top: 40px;
+        gap: 15px;
+        flex-wrap: wrap;
       }
+      
       .nav-btn {
-        padding: 10px 20px;
+        padding: 12px 25px;
         font-size: 1em;
-        background-color: #3498db;
+        background: linear-gradient(135deg, #667eea, #764ba2);
         color: white;
         border: none;
-        border-radius: 5px;
+        border-radius: 25px;
         cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
       }
+      
+      .nav-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      }
+      
       .nav-btn:disabled {
-        background-color: #bdc3c7;
+        background: #cbd5e0;
         cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
       }
+      
       #finish-early-btn {
-        background-color: #e67e22;
+        background: linear-gradient(135deg, #ed8936, #dd6b20);
       }
+      
       #back-to-home-btn {
-        background-color: #9b59b6;
+        background: linear-gradient(135deg, #9f7aea, #805ad5);
       }
+      
+      .results-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 30px 0;
+      }
+      
+      .results-buttons button,
+      .results-buttons a {
+        padding: 12px 20px;
+        font-size: 1em;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        color: white;
+      }
+      
+      .btn-restart {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+      }
+      
+      .btn-retry {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);
+      }
+      
+      .btn-leaderboard {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+      }
+      
+      .btn-view-leaderboard {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        color: #2d3748 !important;
+        box-shadow: 0 5px 15px rgba(168, 237, 234, 0.3);
+      }
+      
+      .btn-home {
+        background: linear-gradient(135deg, #9f7aea, #805ad5);
+        box-shadow: 0 5px 15px rgba(159, 122, 234, 0.3);
+      }
+      
+      .results-buttons button:hover,
+      .results-buttons a:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      }
+      
       .results-table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 20px;
+        margin-top: 30px;
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
       }
+      
       .results-table th,
       .results-table td {
-        border: 1px solid #ddd;
-        padding: 8px;
+        border: none;
+        padding: 15px;
         text-align: left;
       }
+      
       .results-table th {
-        background-color: #f2f2f2;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        font-weight: 600;
+        font-size: 1.1em;
       }
+      
+      .results-table tbody tr {
+        transition: background-color 0.3s ease;
+      }
+      
+      .results-table tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.05);
+      }
+      
       .result-row-correct {
-        background-color: #eafaf1;
+        background: linear-gradient(135deg, rgba(72, 187, 120, 0.1), rgba(56, 161, 105, 0.1));
+        border-left: 5px solid #48bb78;
       }
+      
       .result-row-incorrect {
-        background-color: #fbeaea;
+        background: linear-gradient(135deg, rgba(245, 101, 101, 0.1), rgba(229, 62, 62, 0.1));
+        border-left: 5px solid #f56565;
       }
+      
       .result-row-unanswered {
-        background-color: #fdf2e2;
+        background: linear-gradient(135deg, rgba(237, 137, 54, 0.1), rgba(221, 107, 32, 0.1));
+        border-left: 5px solid #ed8936;
       }
+      
       .result-icon {
+        font-size: 1.4em;
+      }
+      
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.6);
+        backdrop-filter: blur(5px);
+      }
+      
+      .modal-content {
+        background: white;
+        margin: 10% auto;
+        padding: 40px;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 450px;
+        text-align: center;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        animation: modalSlideIn 0.3s ease-out;
+      }
+      
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-50px) scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      
+      .modal h3 {
+        color: #2d3748;
+        margin-bottom: 25px;
+        font-size: 1.8em;
+        font-weight: 700;
+      }
+      
+      .modal p {
+        color: #4a5568;
+        margin-bottom: 25px;
+        font-size: 1.1em;
+        font-weight: 500;
+      }
+      
+      .modal input {
+        width: 100%;
+        padding: 15px;
         font-size: 1.2em;
+        border: 3px solid #e2e8f0;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        text-align: center;
+      }
+      
+      .modal input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: scale(1.02);
+      }
+      
+      .modal-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+      }
+      
+      .modal-btn {
+        padding: 12px 25px;
+        font-size: 1.1em;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+      
+      .modal-btn.primary {
+        background: linear-gradient(135deg, #48bb78, #38a169);
+        color: white;
+        box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+      }
+      
+      .modal-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(72, 187, 120, 0.4);
+      }
+      
+      .modal-btn.secondary {
+        background: linear-gradient(135deg, #cbd5e0, #a0aec0);
+        color: #2d3748;
+        box-shadow: 0 5px 15px rgba(160, 174, 192, 0.3);
+      }
+      
+      .modal-btn.secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(160, 174, 192, 0.4);
+      }
+      
+      @media (max-width: 768px) {
+        .container {
+          padding: 25px;
+          margin: 10px;
+        }
+        
+        h1 {
+          font-size: 2em;
+        }
+        
+        #quiz-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        
+        .results-buttons {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        
+        .results-table {
+          font-size: 0.9em;
+        }
+        
+        .results-table th,
+        .results-table td {
+          padding: 10px 8px;
+        }
       }
     </style>
   </head>
@@ -205,28 +556,12 @@
       <div id="results-container" class="screen">
         <h2 id="quiz-title-results">Quiz Results</h2>
         <h2 id="score"></h2>
-        <div
-          style="
-            text-align: center;
-            margin: 20px 0;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-          "
-        >
-          <button id="restart-btn" class="primary-btn">Restart Quiz</button>
-          <button
-            id="retry-incorrect-btn"
-            class="nav-btn"
-            style="background-color: #f39c12"
-          ></button>
-          <button
-            class="nav-btn"
-            style="background-color: #9b59b6"
-            onclick="window.location.href='index.html'"
-          >
-            Back to Quiz List
-          </button>
+        <div class="results-buttons">
+          <button id="restart-btn" class="btn-restart">🔄 Restart Quiz</button>
+          <button id="retry-incorrect-btn" class="btn-retry"></button>
+          <button id="submit-leaderboard-btn" class="btn-leaderboard">🏆 Submit to Leaderboard</button>
+          <button id="view-leaderboard-btn" class="btn-view-leaderboard">📊 View Leaderboard</button>
+          <a href="index.html" class="btn-home">🏠 Back to Quiz List</a>
         </div>
         <table class="results-table">
           <thead>
@@ -242,6 +577,20 @@
         </table>
       </div>
     </div>
+    
+    <!-- Index Number Modal -->
+    <div id="index-modal" class="modal">
+      <div class="modal-content">
+        <h3>Submit to Leaderboard</h3>
+        <p>Enter your Index Number:</p>
+        <input type="text" id="index-input" placeholder="e.g., 20CS001" maxlength="20">
+        <div class="modal-buttons">
+          <button id="submit-score-btn" class="modal-btn primary">Submit</button>
+          <button id="cancel-submit-btn" class="modal-btn secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+    
     <script src="js/quiz_logic.js"></script>
   </body>
 </html>
