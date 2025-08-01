@@ -1,0 +1,16 @@
+# GitHub configuration (contains API token)
+config.js
+
+# Local storage and temporary files
+.DS_Store
+Thumbs.db
+*.log
+
+# Node modules (if any)
+node_modules/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
