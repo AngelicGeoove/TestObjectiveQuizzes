@@ -240,24 +240,22 @@ async function saveToLeaderboard(indexNumber) {
     }
 }
 
+// Corrected code
 async function submitToGoogleSheets(entry) {
-    // Check if Google Sheets API URL is configured
-    if (!SHEETS_CONFIG.apiUrl || SHEETS_CONFIG.apiUrl === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    if (!SHEETS_CONFIG.apiUrl || SHEETS_CONFIG.apiUrl === 'https://script.google.com/macros/s/AKfycbxiodqsjb-m6gzj-9EZUlqc11hP7TKCgN4uHkTwaZuY8XvdQsXjJOfA8wD9x-CXvjA5Ww/exec') {
         throw new Error('Google Sheets API URL not configured. Scores will be saved locally only.');
     }
-    
-    // Use URLSearchParams for CORS-friendly POST request
+
     const formData = new URLSearchParams();
-    Object.keys(entry).forEach(key => {
+    for (const key in entry) {
         formData.append(key, entry[key]);
-    });
-    
+    }
+
+    // Notice the 'headers' object is completely removed
     const response = await fetch(SHEETS_CONFIG.apiUrl, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData
+        body: formData,
+        // mode: 'no-cors' IS NOT NEEDED and will break things, leave it out.
     });
 
     if (!response.ok) {
@@ -265,8 +263,8 @@ async function submitToGoogleSheets(entry) {
     }
 
     const result = await response.json();
-    
-    if (!result.success) {
+
+    if (result.success === false) { // Check for explicit failure from your script
         throw new Error(`Google Sheets error: ${result.error}`);
     }
 
