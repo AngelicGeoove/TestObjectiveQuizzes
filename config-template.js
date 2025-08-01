@@ -1,8 +1,8 @@
-// Copy this file to config.js and add your GitHub token
+// Copy this file to config.js and add your Google Apps Script URL
 // DO NOT commit config.js to the repository
 
-window.GITHUB_CONFIG = {
-    token: 'YOUR_GITHUB_TOKEN_HERE',
-    repo: 'AngelicGeoove/TestObjectiveQuizzes',
-    owner: 'AngelicGeoove'
+window.SHEETS_CONFIG = {
+    // Replace with your Google Apps Script Web App URL
+    // It should look like: https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
+    apiUrl: 'YOUR_APPS_SCRIPT_URL_HERE'
 };

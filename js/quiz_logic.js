@@ -173,11 +173,9 @@ function showResults() {
     showScreen('results');
 }
 
-// --- GitHub Configuration ---
-const GITHUB_CONFIG = {
-    owner: 'AngelicGeoove',
-    repo: 'TestObjectiveQuizzes',
-    token: window.GITHUB_CONFIG ? window.GITHUB_CONFIG.token : null
+// --- Google Sheets Configuration ---
+const SHEETS_CONFIG = {
+    apiUrl: window.SHEETS_CONFIG ? window.SHEETS_CONFIG.apiUrl : null
 };
 
 // --- Leaderboard Functions ---
@@ -220,7 +218,7 @@ async function saveToLeaderboard(indexNumber) {
     
     try {
         // Try to submit to GitHub Issues first
-        await submitToGitHubIssues(leaderboardEntry);
+        await submitToGoogleSheets(leaderboardEntry);
         
         // Also save to localStorage as backup
         saveToLocalStorage(leaderboardEntry);
@@ -241,50 +239,31 @@ async function saveToLeaderboard(indexNumber) {
     }
 }
 
-async function submitToGitHubIssues(entry) {
-    // Check if GitHub token is available
-    if (!GITHUB_CONFIG.token) {
-        throw new Error('GitHub token not configured. Scores will be saved locally only.');
+async function submitToGoogleSheets(entry) {
+    // Check if Google Sheets API URL is configured
+    if (!SHEETS_CONFIG.apiUrl || SHEETS_CONFIG.apiUrl === 'YOUR_APPS_SCRIPT_URL_HERE') {
+        throw new Error('Google Sheets API URL not configured. Scores will be saved locally only.');
     }
     
-    const issueTitle = `🏆 ${entry.indexNumber} - ${entry.percentage}% (${entry.correctAnswers}/${entry.totalQuestions}) - ${entry.category}`;
-    
-    const issueBody = `## Quiz Leaderboard Entry
-
-**Index Number:** ${entry.indexNumber}  
-**Quiz Category:** ${entry.category}  
-**Score:** ${entry.correctAnswers}/${entry.totalQuestions} (${entry.percentage}%)  
-**Questions Attempted:** ${entry.questionsAnswered}  
-**Date:** ${entry.date}  
-**Time:** ${entry.time}  
-
----
-*Automatically generated leaderboard entry*
-
-\`\`\`json
-${JSON.stringify(entry, null, 2)}
-\`\`\``;
-
-    const response = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues`, {
+    const response = await fetch(SHEETS_CONFIG.apiUrl, {
         method: 'POST',
         headers: {
-            'Authorization': `token ${GITHUB_CONFIG.token}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            title: issueTitle,
-            body: issueBody,
-            labels: ['leaderboard', `quiz-${entry.quizSetId}`, `score-${entry.percentage}`]
-        })
+        body: JSON.stringify(entry)
     });
 
     if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(`GitHub API error: ${response.status} - ${errorData}`);
+        throw new Error(`Google Sheets API error: ${response.status}`);
     }
 
-    return await response.json();
+    const result = await response.json();
+    
+    if (!result.success) {
+        throw new Error(`Google Sheets error: ${result.error}`);
+    }
+
+    return result;
 }
 
 function saveToLocalStorage(leaderboardEntry) {
