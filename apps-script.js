@@ -4,9 +4,62 @@
  */
 
 function doGet(e) {
-  // Handle GET requests - fetch leaderboard data
+  // Handle GET requests - both leaderboard fetch and score submission
   try {
     const sheet = SpreadsheetApp.getActiveSheet();
+    
+    // Check if this is a score submission
+    if (e.parameter && e.parameter.action === 'submit') {
+      // Handle score submission via GET
+      const data = e.parameter;
+      
+      // Ensure data is properly typed
+      const processedData = {
+        indexNumber: String(data.indexNumber || ''),
+        category: String(data.category || ''),
+        correctAnswers: Number(data.correctAnswers) || 0,
+        totalQuestions: Number(data.totalQuestions) || 0,
+        percentage: Number(data.percentage) || 0,
+        questionsAnswered: Number(data.questionsAnswered) || 0,
+        date: String(data.date || ''),
+        time: String(data.time || '')
+      };
+      
+      // Validate required fields
+      const required = ['indexNumber', 'category', 'date', 'time'];
+      for (let field of required) {
+        if (!processedData[field] || processedData[field] === '') {
+          throw new Error(`Missing required field: ${field}`);
+        }
+      }
+      
+      // Add timestamp
+      const timestamp = new Date();
+      
+      // Append new row
+      sheet.appendRow([
+        timestamp,
+        processedData.indexNumber,
+        processedData.category,
+        processedData.correctAnswers,
+        processedData.totalQuestions,
+        processedData.percentage,
+        processedData.questionsAnswered,
+        processedData.date,
+        processedData.time
+      ]);
+      
+      return ContentService
+        .createTextOutput(JSON.stringify({
+          success: true,
+          message: 'Score submitted successfully',
+          timestamp: timestamp.toISOString(),
+          data: processedData
+        }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Default: fetch leaderboard data
     const data = sheet.getDataRange().getValues();
     
     // Skip header row
@@ -30,26 +83,21 @@ function doGet(e) {
       return b.totalquestions - a.totalquestions;
     });
     
-    const response = ContentService
+    return ContentService
       .createTextOutput(JSON.stringify({
         success: true,
         data: leaderboard,
         count: leaderboard.length
       }))
       .setMimeType(ContentService.MimeType.JSON);
-    
-    // Add CORS headers
-    return response;
       
   } catch (error) {
-    const response = ContentService
+    return ContentService
       .createTextOutput(JSON.stringify({
         success: false,
         error: error.toString()
       }))
       .setMimeType(ContentService.MimeType.JSON);
-    
-    return response;
   }
 }
 

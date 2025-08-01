@@ -246,12 +246,12 @@ async function submitToGoogleSheets(entry) {
         throw new Error('Google Sheets API URL not configured. Scores will be saved locally only.');
     }
     
-    const response = await fetch(SHEETS_CONFIG.apiUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(entry)
+    // Use GET request with URL parameters to avoid CORS preflight
+    const params = new URLSearchParams(entry);
+    const urlWithParams = `${SHEETS_CONFIG.apiUrl}?action=submit&${params.toString()}`;
+    
+    const response = await fetch(urlWithParams, {
+        method: 'GET'
     });
 
     if (!response.ok) {
